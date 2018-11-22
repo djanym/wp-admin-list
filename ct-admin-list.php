@@ -1,6 +1,6 @@
 <?php
 /*
-Plugin Name:  Codeable Test: Users Listing
+Plugin Name:  CT: Users Listing
 Description:  Adds admin page with users listing.
 Version:      1.0
 Author:       Nael Concescu

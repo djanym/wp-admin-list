@@ -1,4 +1,4 @@
-=== Codeable Test: Users Listing ===
+=== CT: Users Listing ===
 Contributors: Naili Concescu
 Requires at least: 4.0
 Tested up to: 4.9

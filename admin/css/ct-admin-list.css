@@ -1,0 +1,28 @@
+.tablenav .tablenav-pages .numbered-links a,
+.tablenav .tablenav-pages .numbered-links .current-page{
+    display: inline-block;
+    border: 1px solid #ccc;
+    padding: 4px 5px;
+    background: #e5e5e5;
+    font-size: 12px;
+    line-height: 18px;
+    font-weight: 400;
+    text-align: center;
+    vertical-align: top;
+}
+
+.tablenav .tablenav-pages .numbered-links a:hover,
+.tablenav .tablenav-pages .numbered-links a:focus {
+    border-color: #5b9dd9;
+    color: #fff;
+    background: #00a0d2;
+    box-shadow: none;
+    outline: none;
+}
+
+.tablenav .tablenav-pages .numbered-links .current-page{
+    background: #f8f8f8;
+    border: 1px solid #ddd;
+    padding: 4px 10px;
+    margin: 0;
+}
