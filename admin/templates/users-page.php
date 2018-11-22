@@ -9,14 +9,9 @@
 
         <div class="tablenav top">
 
-            <ul class="subsubsub">
-                <li class="all">Filters: </li>
-                <li class="all"><a href="users.php" class="current" aria-current="page">All <span class="count">(<?php echo $this->total_found; ?>)</span></a> |</li>
-                <li class="administrator"><a href="users.php?role=administrator">Administrator <span class="count">(12)</span></a> |</li>
-                <li class="editor"><a href="users.php?role=editor">Editor <span class="count">(11)</span></a> |</li>
-                <li class="author"><a href="users.php?role=author">Author <span class="count">(11)</span></a> |</li>
-                <li class="contributor"><a href="users.php?role=contributor">Contributor <span class="count">(11)</span></a> |</li>
-                <li class="subscriber"><a href="users.php?role=subscriber">Subscriber <span class="count">(11)</span></a></li>
+            <ul class="subsubsub roles-list-nav">
+                <li>Filter by role: </li>
+                <?php echo $this->role_filter_nav(); ?>
             </ul>
 
             <h2 class="screen-reader-text">Users list navigation</h2>
