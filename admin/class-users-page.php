@@ -13,10 +13,13 @@ if ( ! class_exists( 'UsersAdminList' ) ) {
         var $found_items;
         var $total_found = 0;
         var $roles = array();
+        var $available_order_columns = [ 'user_name', 'display_name' ];
 
         public function __construct () {
             add_action( 'admin_menu', [ $this, 'admin_page_init' ] );
             add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_scripts' ] );
+            add_action( 'wp_loaded', [ $this, 'prepare_roles' ] );
+            add_action( 'wp_ajax_load_users', [ $this, 'load_users' ] );
         }
 
         /**
@@ -43,31 +46,79 @@ if ( ! class_exists( 'UsersAdminList' ) ) {
                 return;
             }
 
-            $role__in = (array)filter_input( INPUT_GET, 'role' );
-            if( ! $role__in ){
-                $role__in = null;
+            $user_query = $this->list_query_users();
+            $this->found_items = $user_query->get_results();
+            $this->total_found = $user_query->get_total();
+
+            $sort_link_username = $this->sort_link( 'user_name', $orderby, $order );
+            $sort_link_displayname = $this->sort_link( 'display_name', $orderby, $order );
+
+            include CTAL_PATH.'/admin/templates/users-page.php';
+        }
+
+        public function load_users () {
+            // Check if user has permissions to view data
+            if ( ! current_user_can( 'list_users' ) ) {
+                return;
             }
-            $current_page = filter_input( INPUT_GET, 'paged' );
+
+            $users_data = [];
+
+            $user_query = $this->list_query_users();
+            if ( $user_query->get_results() ){
+                foreach ($user_query->get_results() as $user){
+                    $users_data[] = [
+                        'user_name' => $user->user_login,
+                        'user_link' => get_edit_user_link( $user->ID ),
+                        'display_name' => $user->display_name,
+                        'user_email' => $user->user_email,
+                        'user_roles' => $this->format_roles( $user->roles )
+                    ];
+                }
+            }
+
+            $result['found_items'] = $users_data;
+            $result['total_found'] = $user_query->get_total();
+
+            wp_send_json($result);
+        }
+
+        private function list_query_users () {
+            $orderby = $this->postget('orderby' );
+            if ( ! in_array( $orderby, $this->available_order_columns ) ) {
+                $orderby = 'user_name';
+            }
+
+            $order = $this->postget('order' );
+            if ( $order !== 'desc' ) {
+                $order = 'asc';
+            }
+
+            $role = $this->postget( 'role' );
+            if ( ! $role ) {
+                $role__in = array();
+            } else {
+                $role__in = (array)$role;
+            }
+
+            $current_page = $this->postget(  'paged' );
             if ( ! (int)$current_page ) {
                 $current_page = 1;
             }
+
             $offset = $this->per_page * $current_page - $this->per_page;
 
             $args = array(
                 'count_total' => true,
                 'offset'      => $offset,
                 'number'      => $this->per_page,
-                'role__in'      => $role__in
+                'role__in'    => $role__in,
+                'orderby'     => $orderby,
+                'order'       => $order
             );
 
             // The Query
-            $user_query = new WP_User_Query( $args );
-
-            $this->found_items = $user_query->get_results();
-            $this->total_found = $user_query->get_total();
-            $this->roles = $this->prepare_roles();
-
-            include CTAL_PATH.'/admin/templates/users-page.php';
+            return new WP_User_Query( $args );
         }
 
         /**
@@ -87,7 +138,24 @@ if ( ! class_exists( 'UsersAdminList' ) ) {
                     ];
                 }
             }
-            return $roles;
+            $this->roles = $roles;
+        }
+
+        /**
+         * Return sort link with current filter options
+         */
+        public function sort_link ( $orderby, $current_orderby, $current_order ) {
+            if ( $orderby == $current_orderby ) {
+                $order = $current_order == 'asc' ? 'desc' : 'asc';
+            } else {
+                $order = 'asc';
+            }
+
+            $query_string = add_query_arg( 'orderby', $orderby, $_SERVER['QUERY_STRING'] );
+            $query_string = add_query_arg( 'order', $order, $query_string );
+            $query_string = remove_query_arg( 'paged', $query_string );
+
+            return admin_url( 'admin.php' ).'?'.$query_string;
         }
 
         /**
@@ -107,21 +175,21 @@ if ( ! class_exists( 'UsersAdminList' ) ) {
          * Returns roles filter navigation
          */
         public function role_filter_nav () {
-            if( ! $this->roles ){
-                return null;
+            if ( ! $this->roles ) {
+                return NULL;
             }
 
-            $current_role = filter_input( INPUT_GET, 'role' );
+            $current_role = $this->postget( 'role' );
 
-            $output = '<li><a href="'.esc_url( $this->role_link() ).'" class="'.(!$current_role?'current':'').'">'.esc_attr__('All', 'ct-admin-list').' <span class="count">('.$this->total_found.')</span></a> |</li> ';
+            $output = '<li><a href="'.esc_url( $this->role_link() ).'" class="'.( ! $current_role ? 'current' : '' ).'" data-filter-role="">'.esc_attr__( 'All', 'ct-admin-list' ).' <span class="count">('.$this->total_found.')</span></a> |</li> ';
 
-            foreach( $this->roles as $role ){
-                if( $role['name'] == $current_role ){
+            foreach ($this->roles as $role) {
+                if ( $role['name'] == $current_role ) {
                     $current_class = 'current';
                 } else {
                     $current_class = '';
                 }
-                $output .= '<li><a href="'.esc_url( $this->role_link($role['name']) ).'" class="'.$current_class.'">'.$role['title'].' <span class="count">('.$role['count'].')</span></a> <span class="separator">|</span></li> ';
+                $output .= '<li><a href="'.esc_url( $this->role_link( $role['name'] ) ).'" class="'.$current_class.'" data-filter-role="'.$role['name'].'">'.$role['title'].' <span class="count">('.$role['count'].')</span></a> <span class="separator">|</span></li> ';
             }
 
             return $output;
@@ -137,7 +205,7 @@ if ( ! class_exists( 'UsersAdminList' ) ) {
 
             $query_string = $_SERVER['QUERY_STRING'];
             $base_url = admin_url( 'admin.php' ).'?';
-            $current_page = (int)filter_input( INPUT_GET, 'paged' );
+            $current_page = (int)$this->postget( 'paged' );
             if ( ! (int)$current_page ) {
                 $current_page = 1;
             }
@@ -234,6 +302,16 @@ if ( ! class_exists( 'UsersAdminList' ) ) {
             }
             if ( $array ) {
                 return join( ', ', $array );
+            } else {
+                return NULL;
+            }
+        }
+
+        private function postget ( $key ) {
+            if ( isset( $_POST[ $key ] ) ) {
+                return filter_input( INPUT_POST, $key );
+            } elseif ( isset( $_GET[ $key ] ) ) {
+                return filter_input( INPUT_GET, $key );
             } else {
                 return NULL;
             }

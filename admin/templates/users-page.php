@@ -9,12 +9,12 @@
 
         <div class="tablenav top">
 
+            <h2 class="screen-reader-text">User roles filter</h2>
             <ul class="subsubsub roles-list-nav">
-                <li>Filter by role: </li>
                 <?php echo $this->role_filter_nav(); ?>
             </ul>
 
-            <h2 class="screen-reader-text">Users list navigation</h2>
+            <h2 class="screen-reader-text">Users list pagination</h2>
             <div class="tablenav-pages">
                 <?php echo $this->paginator(); ?>
             </div>
@@ -22,34 +22,48 @@
         </div>
 
         <h2 class="screen-reader-text">Users list</h2>
-        <table class="wp-list-table widefat fixed striped users">
+        <table class="wp-list-table widefat fixed striped">
             <thead>
             <tr>
-                <th scope="col" id="username" class="manage-column column-username column-primary sortable desc">
-                    <a href="users.php?orderby=login&amp;order=asc"><span><?php esc_html_e('Username', ''); ?></span><span class="sorting-indicator"></span></a>
+                <th scope="col" id="username" class="column-username column-primary sorted desc">
+                    <a href="<?php echo esc_url( $sort_link_username ); ?>" data-sort-order="asc" data-sort-orderby="user_name">
+                        <span><?php esc_html_e( 'Username', 'ct-admin-list' ); ?></span><span class="sorting-indicator"></span>
+                    </a>
                 </th>
-                <th scope="col" id="name" class="manage-column column-name">Name</th>
-                <th scope="col" id="email" class="manage-column column-email">Email</th>
-                <th scope="col" id="role" class="manage-column column-role">Role</th>
+                <th scope="col" id="name" class="column-name sortable asc">
+                    <a href="<?php echo esc_url( $sort_link_displayname ); ?>" data-sort-order="asc" data-sort-orderby="display_name">
+                        <span><?php esc_html_e( 'Name', 'ct-admin-list' ); ?></span><span class="sorting-indicator"></span>
+                    </a>
+                </th>
+                <th scope="col" id="email" class="column-email">Email</th>
+                <th scope="col" id="role" class="column-role">Role</th>
             </tr>
             </thead>
 
+            <template id="user_table_row" style="display: none;">
+                <tr>
+                    <td><strong><a id="user_name_link"></a></strong></td>
+                    <td id="display_name"></td>
+                    <td id="user_email"></td>
+                    <td id="user_roles"></td>
+                </tr>
+            </template>
+
             <tbody id="list_table_body">
 
-            <?php if( $this->found_items ) : ?>
-
-            <?php foreach( $this->found_items as $user ) : ?>
-
-            <tr>
-                <td><strong><a href="<?php echo get_edit_user_link($user->ID); ?>"><?php echo $user->user_login; ?></a></strong></td>
-                <td><?php echo $user->display_name; ?></td>
-                <td><?php echo $user->user_email; ?></td>
-                <td><?php echo $this->format_roles($user->roles); ?></td>
-            </tr>
-
-            <?php endforeach; ?>
-
-            <?php endif; ?>
+            <?php
+            if ( $this->found_items ) :
+                foreach ($this->found_items as $user) : ?>
+                    <tr>
+                        <td><strong><a href="<?php echo get_edit_user_link( $user->ID ); ?>"><?php echo $user->user_login; ?></a></strong></td>
+                        <td><?php echo $user->display_name; ?></td>
+                        <td><?php echo $user->user_email; ?></td>
+                        <td><?php echo $this->format_roles( $user->roles ); ?></td>
+                    </tr>
+                <?php
+                endforeach;
+            endif;
+            ?>
 
             </tbody>
 
@@ -59,8 +73,8 @@
 
             <div class="tablenav-pages"><span class="displaying-num"></span>
                 <?php echo $this->paginator(); ?>
-            <br class="clear">
-        </div>
+                <br class="clear">
+            </div>
     </form>
 
     <br class="clear">
