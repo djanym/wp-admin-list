@@ -15,9 +15,33 @@ $(function(){
     });
 
     $('a[data-sort-orderby]').click(function(){
+        // Remove focus outlines to fix visual bug with sorting indicator.
+        $(this).blur();
+
+        // First time
+        if( $(this).parent('th').hasClass('sortable') ){
+            $('.users-list-table th.sorted')
+                .removeClass('sorted asc')
+                .addClass('sortable desc')
+                .find('a').attr('data-sort-order', 'asc');
+
+            $(this).attr('data-sort-order', 'asc');
+        }
+
         load_users_ajax(ct_current_role, $(this).attr('data-sort-orderby'), $(this).attr('data-sort-order'), ct_current_page);
+
+        var new_order_dir = $(this).attr('data-sort-order') === 'asc' ? 'desc' : 'asc';
+
+        $(this)
+            .attr('data-sort-order', new_order_dir )
+            .parent('th')
+                .removeClass('sortable')
+                .addClass('sorted')
+                .toggleClass('asc desc');
+
         return false;
     });
+
 });
 
 function load_users_ajax(role, orderby, order, paged){
@@ -33,6 +57,9 @@ function load_users_ajax(role, orderby, order, paged){
     ct_current_orderby = orderby;
     ct_current_order = order;
     ct_current_page = paged;
+
+    // TODO: remove
+    console.log(role, orderby, order, paged);
 
     $.ajax({
         type: 'POST',

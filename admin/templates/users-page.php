@@ -22,15 +22,15 @@
         </div>
 
         <h2 class="screen-reader-text">Users list</h2>
-        <table class="wp-list-table widefat fixed striped">
+        <table class="wp-list-table widefat fixed striped users-list-table">
             <thead>
             <tr>
-                <th scope="col" id="username" class="column-username column-primary sorted desc">
-                    <a href="<?php echo esc_url( $sort_link_username ); ?>" data-sort-order="asc" data-sort-orderby="user_name">
+                <th scope="col" id="username" class="column-username column-primary sorted asc">
+                    <a href="<?php echo esc_url( $sort_link_username ); ?>" data-sort-order="desc" data-sort-orderby="user_name">
                         <span><?php esc_html_e( 'Username', 'ct-admin-list' ); ?></span><span class="sorting-indicator"></span>
                     </a>
                 </th>
-                <th scope="col" id="name" class="column-name sortable asc">
+                <th scope="col" id="name" class="column-name sortable desc">
                     <a href="<?php echo esc_url( $sort_link_displayname ); ?>" data-sort-order="asc" data-sort-orderby="display_name">
                         <span><?php esc_html_e( 'Name', 'ct-admin-list' ); ?></span><span class="sorting-indicator"></span>
                     </a>
