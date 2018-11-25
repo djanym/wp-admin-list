@@ -45,6 +45,10 @@
                 </tr>
             </template>
 
+            <template id="user_table_noresults" style="display: none;">
+                <tr class="no-items"><td class="colspanchange" colspan="4"><?php esc_html_e('Nothing found', 'ct-admin-list'); ?></td></tr>
+            </template>
+
             <tbody id="list_table_body">
 
             <?php
@@ -58,6 +62,9 @@
                     </tr>
                 <?php
                 endforeach;
+            else : ?>
+                <tr class="no-items"><td class="colspanchange" colspan="4"><?php esc_html_e('Nothing found', 'ct-admin-list'); ?></td></tr>
+            <?php
             endif;
             ?>
 
