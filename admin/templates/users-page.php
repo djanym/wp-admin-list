@@ -25,13 +25,13 @@
         <table class="wp-list-table widefat fixed striped users-list-table">
             <thead>
             <tr>
-                <th scope="col" id="username" class="column-username column-primary sorted asc">
-                    <a href="<?php echo esc_url( $sort_link_username ); ?>" data-sort-order="desc" data-sort-orderby="user_name">
+                <th scope="col" id="username" class="column-username column-primary <?php echo $this->prepare_sortable_classes('user_name'); ?>">
+                    <a href="<?php echo esc_url( $sort_link_username ); ?>" data-sort-order="<?php echo $this->prepare_new_orderdir('user_name'); ?>" data-sort-orderby="user_name">
                         <span><?php esc_html_e( 'Username', 'ct-admin-list' ); ?></span><span class="sorting-indicator"></span>
                     </a>
                 </th>
-                <th scope="col" id="name" class="column-name sortable desc">
-                    <a href="<?php echo esc_url( $sort_link_displayname ); ?>" data-sort-order="asc" data-sort-orderby="display_name">
+                <th scope="col" id="name" class="column-name <?php echo $this->prepare_sortable_classes('display_name'); ?>">
+                    <a href="<?php echo esc_url( $sort_link_displayname ); ?>" data-sort-order="<?php echo $this->prepare_new_orderdir('display_name'); ?>" data-sort-orderby="display_name">
                         <span><?php esc_html_e( 'Name', 'ct-admin-list' ); ?></span><span class="sorting-indicator"></span>
                     </a>
                 </th>

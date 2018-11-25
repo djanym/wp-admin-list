@@ -13,11 +13,15 @@ if ( ! class_exists( 'UsersAdminList' ) ) {
         var $found_items;
         var $total_found = 0;
         var $roles = array();
+        var $role = '';
+        var $orderby = 'user_name';
+        var $order = 'asc';
         var $available_order_columns = [ 'user_name', 'display_name' ];
 
         public function __construct () {
             add_action( 'admin_menu', [ $this, 'admin_page_init' ] );
-            add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_scripts' ] );
+            add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_scripts' ], 10 );
+            add_action( 'admin_print_footer_scripts', [ $this, 'footer_code' ], 20 );
             add_action( 'wp_loaded', [ $this, 'prepare_roles' ] );
             add_action( 'wp_ajax_load_users', [ $this, 'load_users' ] );
         }
@@ -28,6 +32,14 @@ if ( ! class_exists( 'UsersAdminList' ) ) {
         public function enqueue_scripts () {
             wp_enqueue_style( 'ct-admin-list', CTAL_URL.'/admin/css/ct-admin-list.css' );
             wp_enqueue_script( 'ct-admin-list', CTAL_URL.'/admin/js/ct-admin-list.js', [ 'jquery' ], NULL, true );
+        }
+
+        public function footer_code () {
+            ?>
+            <script type="text/javascript">
+                ct_current_role = '<?php echo $this->role; ?>';
+            </script>
+            <?php
         }
 
         /**
@@ -50,8 +62,8 @@ if ( ! class_exists( 'UsersAdminList' ) ) {
             $this->found_items = $user_query->get_results();
             $this->total_found = $user_query->get_total();
 
-            $sort_link_username = $this->sort_link( 'user_name', $orderby, $order );
-            $sort_link_displayname = $this->sort_link( 'display_name', $orderby, $order );
+            $sort_link_username = $this->sort_link( 'user_name', $this->orderby, $this->order );
+            $sort_link_displayname = $this->sort_link( 'display_name', $this->orderby, $this->order );
 
             include CTAL_PATH.'/admin/templates/users-page.php';
         }
@@ -65,14 +77,14 @@ if ( ! class_exists( 'UsersAdminList' ) ) {
             $users_data = [];
 
             $user_query = $this->list_query_users();
-            if ( $user_query->get_results() ){
-                foreach ($user_query->get_results() as $user){
+            if ( $user_query->get_results() ) {
+                foreach ($user_query->get_results() as $user) {
                     $users_data[] = [
-                        'user_name' => $user->user_login,
-                        'user_link' => get_edit_user_link( $user->ID ),
+                        'user_name'    => $user->user_login,
+                        'user_link'    => get_edit_user_link( $user->ID ),
                         'display_name' => $user->display_name,
-                        'user_email' => $user->user_email,
-                        'user_roles' => $this->format_roles( $user->roles )
+                        'user_email'   => $user->user_email,
+                        'user_roles'   => $this->format_roles( $user->roles )
                     ];
                 }
             }
@@ -80,19 +92,21 @@ if ( ! class_exists( 'UsersAdminList' ) ) {
             $result['found_items'] = $users_data;
             $result['total_found'] = $user_query->get_total();
 
-            wp_send_json($result);
+            wp_send_json( $result );
         }
 
         private function list_query_users () {
-            $orderby = $this->postget('orderby' );
+            $orderby = $this->postget( 'orderby' );
             if ( ! in_array( $orderby, $this->available_order_columns ) ) {
-                $orderby = 'user_name';
+                $orderby = $this->orderby;
             }
+            $this->orderby = $orderby;
 
-            $order = $this->postget('order' );
-            if ( $order !== 'desc' ) {
-                $order = 'asc';
+            $order = $this->postget( 'order' );
+            if ( ! in_array( $order, [ 'asc', 'desc' ] ) ) {
+                $order = $this->order;
             }
+            $this->order = $order;
 
             $role = $this->postget( 'role' );
             if ( ! $role ) {
@@ -100,8 +114,9 @@ if ( ! class_exists( 'UsersAdminList' ) ) {
             } else {
                 $role__in = (array)$role;
             }
+            $this->role = $role;
 
-            $current_page = $this->postget(  'paged' );
+            $current_page = $this->postget( 'paged' );
             if ( ! (int)$current_page ) {
                 $current_page = 1;
             }
@@ -156,6 +171,36 @@ if ( ! class_exists( 'UsersAdminList' ) ) {
             $query_string = remove_query_arg( 'paged', $query_string );
 
             return admin_url( 'admin.php' ).'?'.$query_string;
+        }
+
+        public function prepare_sortable_classes ( $orderby ) {
+            if ( $orderby == $this->orderby ) {
+                $class[] = 'sorted';
+
+                if ( $this->order == 'desc' ) {
+                    $class[] = 'desc';
+                } else {
+                    $class[] = 'asc';
+                }
+            } else {
+                $class[] = 'sortable desc';
+            }
+
+            return join( ' ', $class );
+        }
+
+        public function prepare_new_orderdir ( $orderby ) {
+            if ( $orderby == $this->orderby ) {
+                if ( $this->order == 'desc' ) {
+                    $order = 'asc';
+                } else {
+                    $order = 'desc';
+                }
+            } else {
+                $order = 'asc';
+            }
+
+            return $order;
         }
 
         /**
