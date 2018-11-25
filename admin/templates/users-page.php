@@ -5,23 +5,19 @@
 
     <h2 class="screen-reader-text"><?php esc_html_e( 'Filter users list', 'ct-admin-list' ); ?></h2>
 
-    <form method="get">
-
         <div class="tablenav top">
 
-            <h2 class="screen-reader-text">User roles filter</h2>
+            <h2 class="screen-reader-text"><?php esc_html_e( 'User roles filter', 'ct-admin-list' ); ?></h2>
             <ul class="subsubsub roles-list-nav">
                 <?php echo $this->role_filter_nav(); ?>
             </ul>
 
-            <h2 class="screen-reader-text">Users list pagination</h2>
-            <div class="tablenav-pages">
-                <?php echo $this->paginator(); ?>
-            </div>
+            <h2 class="screen-reader-text"><?php esc_html_e( 'Users list pagination', 'ct-admin-list' ); ?></h2>
+            <?php echo $this->paginator(); ?>
             <br class="clear">
         </div>
 
-        <h2 class="screen-reader-text">Users list</h2>
+        <h2 class="screen-reader-text"><?php esc_html_e( 'Users list', 'ct-admin-list' ); ?></h2>
         <table class="wp-list-table widefat fixed striped users-list-table">
             <thead>
             <tr>
@@ -35,8 +31,8 @@
                         <span><?php esc_html_e( 'Name', 'ct-admin-list' ); ?></span><span class="sorting-indicator"></span>
                     </a>
                 </th>
-                <th scope="col" id="email" class="column-email">Email</th>
-                <th scope="col" id="role" class="column-role">Role</th>
+                <th scope="col" id="email" class="column-email"><?php esc_html_e( 'Email', 'ct-admin-list' ); ?></th>
+                <th scope="col" id="role" class="column-role"><?php esc_html_e( 'Role', 'ct-admin-list' ); ?></th>
             </tr>
             </thead>
 
@@ -70,12 +66,10 @@
         </table>
 
         <div class="tablenav bottom">
-
-            <div class="tablenav-pages"><span class="displaying-num"></span>
-                <?php echo $this->paginator(); ?>
-                <br class="clear">
-            </div>
-    </form>
+            <h2 class="screen-reader-text"><?php esc_html_e( 'Users list pagination', 'ct-admin-list' ); ?></h2>
+            <?php echo $this->paginator(); ?>
+            <br class="clear">
+        </div>
 
     <br class="clear">
 </div>

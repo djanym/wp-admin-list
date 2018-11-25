@@ -12,8 +12,10 @@ if ( ! class_exists( 'UsersAdminList' ) ) {
         var $per_page = 10;
         var $found_items;
         var $total_found = 0;
+        var $total_pages = 0;
         var $roles = array();
         var $role = '';
+        var $page = 1;
         var $orderby = 'user_name';
         var $order = 'asc';
         var $available_order_columns = [ 'user_name', 'display_name' ];
@@ -38,6 +40,9 @@ if ( ! class_exists( 'UsersAdminList' ) ) {
             ?>
             <script type="text/javascript">
                 ct_current_role = '<?php echo $this->role; ?>';
+                ct_current_orderby = '<?php echo $this->orderby; ?>';
+                ct_current_order = '<?php echo $this->order; ?>';
+                ct_current_page = <?php echo $this->page; ?>;
             </script>
             <?php
         }
@@ -59,8 +64,6 @@ if ( ! class_exists( 'UsersAdminList' ) ) {
             }
 
             $user_query = $this->list_query_users();
-            $this->found_items = $user_query->get_results();
-            $this->total_found = $user_query->get_total();
 
             $sort_link_username = $this->sort_link( 'user_name', $this->orderby, $this->order );
             $sort_link_displayname = $this->sort_link( 'display_name', $this->orderby, $this->order );
@@ -90,7 +93,10 @@ if ( ! class_exists( 'UsersAdminList' ) ) {
             }
 
             $result['found_items'] = $users_data;
-            $result['total_found'] = $user_query->get_total();
+            $result['total_found'] = $this->total_found;
+            $result['total_found_formatted'] = sprintf( _n( '%s item', '%s items', $this->total_found, 'ct-admin-list' ), number_format_i18n( $this->total_found ) );
+            $result['total_pages'] = $this->total_pages;
+            $result['total_pages_formatted'] = number_format_i18n( $this->total_pages );
 
             wp_send_json( $result );
         }
@@ -120,6 +126,7 @@ if ( ! class_exists( 'UsersAdminList' ) ) {
             if ( ! (int)$current_page ) {
                 $current_page = 1;
             }
+            $this->page = (int)$current_page;
 
             $offset = $this->per_page * $current_page - $this->per_page;
 
@@ -133,7 +140,13 @@ if ( ! class_exists( 'UsersAdminList' ) ) {
             );
 
             // The Query
-            return new WP_User_Query( $args );
+            $query = new WP_User_Query( $args );
+
+            $this->found_items = $query->get_results();
+            $this->total_found = $query->get_total();
+            $this->total_pages = ceil( $this->total_found / $this->per_page );
+
+            return $query;
         }
 
         /**
@@ -203,6 +216,24 @@ if ( ! class_exists( 'UsersAdminList' ) ) {
             return $order;
         }
 
+        public function prepare_pagination_select_options () {
+            if ( ! $this->total_pages ) {
+                return NULL;
+            }
+
+            $out = '';
+            for( $x = 1; $x <= $this->total_pages; $x++ ){
+                if( $x === $this->page ){
+                    $selected = 'selected="selected"';
+                } else {
+                    $selected = '';
+                }
+                $out .= '<option value="'.$x.'" '.$selected.'>'.$x.'</option>';
+            }
+
+            return $out;
+        }
+
         /**
          * Return role link with current sorting options
          */
@@ -250,26 +281,20 @@ if ( ! class_exists( 'UsersAdminList' ) ) {
 
             $query_string = $_SERVER['QUERY_STRING'];
             $base_url = admin_url( 'admin.php' ).'?';
-            $current_page = (int)$this->postget( 'paged' );
-            if ( ! (int)$current_page ) {
-                $current_page = 1;
+
+            if ( (int)$this->total_pages === 1 ) {
+                $paginator_class = 'one-page';
+            } else {
+                $paginator_class = '';
             }
 
-            $total_pages = ceil( $this->total_found / $this->per_page );
+            $output = '<div class="tablenav-pages '.$paginator_class.'">';
 
-            if ( $total_pages === 1 ) {
-                return NULL;
-            }
-
-            // Set pages range to display
-            $from = $current_page > 4 ? $current_page - 4 : 1;
-            $to = $current_page < $total_pages - 4 ? $current_page + 4 : $total_pages;
-
-            $output = '<span class="displaying-num">'.$this->format_total_found( $this->total_found ).'</span>';
+            $output .= '<span class="displaying-num">' . sprintf( _n( '%s item', '%s items', $this->total_found, 'ct-admin-list' ), number_format_i18n( $this->total_found ) ) . '</span>';
             $output .= '<span class="pagination-links">';
 
             // Add first page link or label
-            if ( $current_page <= 2 ) {
+            if ( $this->page <= 2 ) {
                 $output .= '<span class="tablenav-pages-navspan" aria-hidden="true">&laquo;</span> ';
             } else {
                 $output .= sprintf( '<a class="first-page" href="%s"><span class="screen-reader-text">%s</span><span aria-hidden="true">%s</span></a> ',
@@ -280,56 +305,49 @@ if ( ! class_exists( 'UsersAdminList' ) ) {
             }
 
             // Add previous page link or label
-            if ( $current_page <= 1 ) {
+            if ( $this->page <= 1 ) {
                 $output .= '<span class="tablenav-pages-navspan" aria-hidden="true">&lsaquo;</span> ';
             } else {
                 $output .= sprintf( '<a class="prev-page" href="%s"><span class="screen-reader-text">%s</span><span aria-hidden="true">%s</span></a> ',
-                    esc_url( $base_url.add_query_arg( 'paged', $current_page - 1, $query_string ) ),
+                    esc_url( $base_url.add_query_arg( 'paged', $this->page - 1, $query_string ) ),
                     __( 'Previous page', 'ct-admin-list' ),
                     '&lsaquo;'
                 );
             }
 
-            $output .= '<span class="numbered-links">';
+            $output .= '<span class="paging-input">';
+            $output .= '<label for="current-page-selector" class="screen-reader-text">' . __( 'Current Page', 'ct-admin-list' ) . '</label>';
 
-            for ($x = $from; $x <= $to; $x++) {
-                if ( $x === $current_page ) {
-                    $output .= '<span class="current-page">'.$x.'</span> ';
-                } else {
-                    $output .= '<a href="'.esc_url( $base_url.add_query_arg( 'paged', $x, $query_string ) ).'"><span>'.$x.'</span></a> ';
-                }
-            }
+            $output .= '<select name="paged" class="current-page-selector">'.$this->prepare_pagination_select_options().'</select>';
 
-            $output .= '</span>';
+            $html_total_pages = sprintf( '<span class="total-pages">%s</span>', number_format_i18n( $this->total_pages ) );
+            $output .= sprintf( _x( '%1$s of %2$s', 'paging', 'ct-admin-list' ),
+                '<span class="tablenav-paging-text">',
+                $html_total_pages ) . '</span></span> ';
 
             // Add next page link or label
-            if ( $current_page + 1 >= $total_pages ) {
+            if ( $this->page + 1 > $this->total_pages ) {
                 $output .= '<span class="tablenav-pages-navspan" aria-hidden="true">&rsaquo;</span> ';
             } else {
                 $output .= sprintf( '<a class="prev-page" href="%s"><span class="screen-reader-text">%s</span><span aria-hidden="true">%s</span></a> ',
-                    esc_url( $base_url.add_query_arg( 'paged', $current_page + 1, $query_string ) ),
+                    esc_url( $base_url.add_query_arg( 'paged', $this->page + 1, $query_string ) ),
                     __( 'Next page', 'ct-admin-list' ),
                     '&rsaquo;'
                 );
             }
 
             // Add last page link or label
-            if ( $current_page + 2 >= $total_pages ) {
+            if ( $this->page + 2 > $this->total_pages ) {
                 $output .= '<span class="tablenav-pages-navspan" aria-hidden="true">&raquo;</span> ';
             } else {
                 $output .= sprintf( '<a class="prev-page" href="%s"><span class="screen-reader-text">%s</span><span aria-hidden="true">%s</span></a> ',
-                    esc_url( $base_url.add_query_arg( 'paged', $total_pages, $query_string ) ),
+                    esc_url( $base_url.add_query_arg( 'paged', $this->total_pages, $query_string ) ),
                     __( 'Last page', 'ct-admin-list' ),
                     '&raquo;'
                 );
             }
 
-            if ( $total_pages ) {
-                $page_class = $total_pages < 2 ? ' one-page' : '';
-            } else {
-                $page_class = ' no-pages';
-            }
-            $this->_pagination = "<div class='tablenav-pages{$page_class}'>$output</div>";
+            $output .= '</div>';
 
             return $output;
         }
@@ -360,13 +378,6 @@ if ( ! class_exists( 'UsersAdminList' ) ) {
             } else {
                 return NULL;
             }
-        }
-
-        /**
-         * Formats total users count
-         */
-        public function format_total_found ( $number ) {
-            return sprintf( '%d %s', number_format_i18n( $number ), _n( 'user', 'users', $number, 'ct-admin-list' ) );
         }
 
     }

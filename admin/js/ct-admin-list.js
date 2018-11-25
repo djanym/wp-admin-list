@@ -6,11 +6,15 @@ var ct_current_order = '';
 var ct_current_page = 1;
 
 $(function(){
+    $('.tablenav-pages select').on('change', function(){
+        load_users_ajax(ct_current_role, ct_current_orderby, ct_current_order, $(this).val());
+    });
+
     $('a[data-filter-role]').click(function(){
         $('.roles-list-nav a').removeClass('current');
         $(this).addClass('current');
 
-        load_users_ajax($(this).attr('data-filter-role'), ct_current_orderby, ct_current_order, ct_current_page);
+        load_users_ajax($(this).attr('data-filter-role'), ct_current_orderby, ct_current_order, 1);
         return false;
     });
 
@@ -33,18 +37,18 @@ $(function(){
         var new_order_dir = $(this).attr('data-sort-order') === 'asc' ? 'desc' : 'asc';
 
         $(this)
-            .attr('data-sort-order', new_order_dir )
+            .attr('data-sort-order', new_order_dir)
             .parent('th')
-                .removeClass('sortable')
-                .addClass('sorted')
-                .toggleClass('asc desc');
+            .removeClass('sortable')
+            .addClass('sorted')
+            .toggleClass('asc desc');
 
         return false;
     });
 
 });
 
-function load_users_ajax(role, orderby, order, paged){
+function load_users_ajax( role, orderby, order, paged ){
     var postData = {
         'action': 'load_users',
         'role': role,
@@ -75,12 +79,29 @@ function load_users_ajax(role, orderby, order, paged){
 
             $.each(res.found_items, function( i, item ){
                 var row = $($('#user_table_row').html());
-                row.find('#user_name_link').text(item.user_name).prop( 'href', item.user_link);
+                row.find('#user_name_link').text(item.user_name).prop('href', item.user_link);
                 row.find('#display_name').text(item.display_name);
                 row.find('#user_email').text(item.user_email);
                 row.find('#user_roles').text(item.user_roles);
                 container.append(row);
             })
+
+            if( res.total_pages && $('.tablenav-pages select:first option').length !== res.total_pages ){
+                $('.tablenav-pages select').empty();
+
+                for(var x = 1; x <= parseInt(res.total_pages); x++){
+                    $('.tablenav-pages select').append($('<option/>').prop('value', x).text(x));
+                }
+            }
+
+            $('.tablenav-pages .displaying-num').text(res.total_found_formatted);
+            $('.tablenav-pages .total-pages').text(res.total_pages_formatted);
+
+            if( res.total_pages < 2 ){
+                $('.tablenav-pages').addClass('one-page');
+            } else {
+                $('.tablenav-pages').removeClass('one-page');
+            }
         }
     });
     return false;

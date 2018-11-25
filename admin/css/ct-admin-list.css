@@ -27,6 +27,15 @@
     margin: 0;
 }
 
+.tablenav-pages .current-page-selector {
+    margin: 0 2px 0 0;
+    padding: 4px 5px 5px;
+    font-size: 13px;
+    text-align: center;
+    height: 28px;
+    vertical-align: top;
+}
+
 .roles-list-nav li:last-child .separator{
     display: none;
 }
