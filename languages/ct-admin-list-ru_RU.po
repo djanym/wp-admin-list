@@ -1,19 +1,20 @@
 # Blank WordPress Pot
 # Copyright 2014 ...
 # This file is distributed under the GNU General Public License v3 or later.
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: Codeable Test: Users Listing\n"
+"Report-Msgid-Bugs-To: Translator Name <translations@example.com>\n"
 "POT-Creation-Date: 2018-11-26 00:42+0300\n"
 "PO-Revision-Date: \n"
-"Last-Translator: Your Name <you@example.com>\n"
+"Last-Translator: \n"
 "Language-Team: \n"
-"Report-Msgid-Bugs-To: Translator Name <translations@example.com>\n"
+"Language: ru\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
+"%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 "X-Textdomain-Support: yesX-Generator: Poedit 1.6.4\n"
 "X-Poedit-SourceCharset: UTF-8\n"
 "X-Poedit-KeywordsList: __;_e;esc_html_e;esc_html_x:1,2c;esc_html__;"
@@ -21,84 +22,90 @@ msgstr ""
 "_x:1,2c;_n:1,2;_n_noop:1,2;__ngettext:1,2;__ngettext_noop:1,2;_c,"
 "_nc:4c,1,2\n"
 "X-Poedit-Basepath: ..\n"
-"Language: en_US\n"
 "X-Generator: Poedit 1.8.4\n"
 "X-Poedit-SearchPath-0: .\n"
 "X-Poedit-SearchPathExcluded-0: languages\n"
 
 #: admin/class-users-page.php:55
 msgid "Users List"
-msgstr ""
+msgstr "Список Пользователей"
 
 #: admin/class-users-page.php:55 admin/templates/users-page.php:20
 msgid "Users list"
-msgstr ""
+msgstr "Список пользователей"
 
 #: admin/class-users-page.php:98 admin/class-users-page.php:294
 #, php-format
 msgid "%s item"
 msgid_plural "%s items"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%s элемент"
+msgstr[1] "%s элемента"
+msgstr[2] "%s элементов"
 
 #: admin/class-users-page.php:261
 msgid "All"
-msgstr ""
+msgstr "Все"
 
 #: admin/class-users-page.php:308
 msgid "First page"
-msgstr ""
+msgstr "Первая страница"
 
 #: admin/class-users-page.php:323
 msgid "Previous page"
-msgstr ""
+msgstr "Предыдущая страница"
 
 #: admin/class-users-page.php:328
 msgid "Current Page"
-msgstr ""
+msgstr "Текущая страница"
 
 #: admin/class-users-page.php:333
 #, php-format
 msgctxt "paging"
 msgid "%1$s of %2$s"
-msgstr ""
+msgstr "%1$s из %2$s"
 
 #: admin/class-users-page.php:348
 msgid "Next page"
-msgstr ""
+msgstr "Следующая страница"
 
 #: admin/class-users-page.php:363
 msgid "Last page"
-msgstr ""
+msgstr "Последняя страница"
 
 #: admin/templates/users-page.php:2
 msgid "Users"
-msgstr ""
+msgstr "Пользователи"
 
 #: admin/templates/users-page.php:6
 msgid "Filter users list"
-msgstr ""
+msgstr "Фильтр списка пользователей"
 
 #: admin/templates/users-page.php:10
 msgid "User roles filter"
-msgstr ""
+msgstr "Фильтр ролей"
 
 #: admin/templates/users-page.php:15 admin/templates/users-page.php:69
 msgid "Users list pagination"
-msgstr ""
+msgstr "Страницы"
 
 #: admin/templates/users-page.php:26
 msgid "Username"
-msgstr ""
+msgstr "Имя пользователя"
 
 #: admin/templates/users-page.php:31
 msgid "Name"
-msgstr ""
+msgstr "Отображаемое имя"
 
 #: admin/templates/users-page.php:34
 msgid "Email"
-msgstr ""
+msgstr "Емайл"
 
 #: admin/templates/users-page.php:35
 msgid "Role"
-msgstr ""
+msgstr "Роль"
+
+#~ msgid "user"
+#~ msgid_plural "users"
+#~ msgstr[0] "пользователь"
+#~ msgstr[1] "пользователя"
+#~ msgstr[2] "пользователей"

@@ -122,9 +122,9 @@ function load_users_ajax( role, orderby, order, paged ){
             $.each(res.found_items, function( i, item ){
                 var row = $($('#user_table_row').html());
                 row.find('#user_name_link').text(item.user_name).prop('href', item.user_link);
-                row.find('#display_name').text(item.display_name);
+                row.find('#display_name').html(item.display_name);
                 row.find('#user_email').text(item.user_email);
-                row.find('#user_roles').text(item.user_roles);
+                row.find('#user_roles').html(item.user_roles);
                 container.append(row);
             })
 

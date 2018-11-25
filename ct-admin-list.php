@@ -25,6 +25,6 @@ if ( is_admin() ) {
  * Activates internationalization feature for the plugin
  */
 function ct_plugin_textdomain(){
-	load_plugin_textdomain('ct-admin-list', false, CTAL_PATH.'/languages/');
+	load_plugin_textdomain('ct-admin-list', false, basename( dirname( __FILE__ ) ).'/languages/');
 }
 add_action('plugins_loaded', 'ct_plugin_textdomain');
