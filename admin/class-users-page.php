@@ -43,6 +43,7 @@ if ( ! class_exists( 'UsersAdminList' ) ) {
                 ct_current_orderby = '<?php echo $this->orderby; ?>';
                 ct_current_order = '<?php echo $this->order; ?>';
                 ct_current_page = <?php echo $this->page; ?>;
+                ct_total_pages = <?php echo $this->total_pages; ?>;
             </script>
             <?php
         }
@@ -293,27 +294,35 @@ if ( ! class_exists( 'UsersAdminList' ) ) {
             $output .= '<span class="displaying-num">' . sprintf( _n( '%s item', '%s items', $this->total_found, 'ct-admin-list' ), number_format_i18n( $this->total_found ) ) . '</span>';
             $output .= '<span class="pagination-links">';
 
-            // Add first page link or label
+            // Disable/enable first page link
             if ( $this->page <= 2 ) {
-                $output .= '<span class="tablenav-pages-navspan" aria-hidden="true">&laquo;</span> ';
+                $disabled = 'disabled="disabled"';
             } else {
-                $output .= sprintf( '<a class="first-page" href="%s"><span class="screen-reader-text">%s</span><span aria-hidden="true">%s</span></a> ',
-                    esc_url( $base_url.add_query_arg( 'paged', 1, $query_string ) ),
-                    __( 'First page', 'ct-admin-list' ),
-                    '&laquo;'
-                );
+                $disabled = '';
             }
 
-            // Add previous page link or label
+            // First link html
+            $output .= sprintf( '<a class="first-page" %s href="%s"><span class="screen-reader-text">%s</span><span aria-hidden="true">%s</span></a> ',
+                $disabled,
+                esc_url( $base_url.add_query_arg( 'paged', 1, $query_string ) ),
+                __( 'First page', 'ct-admin-list' ),
+                '&laquo;'
+            );
+
+            // Disable/enable previous page link
             if ( $this->page <= 1 ) {
-                $output .= '<span class="tablenav-pages-navspan" aria-hidden="true">&lsaquo;</span> ';
+                $disabled = 'disabled="disabled"';
             } else {
-                $output .= sprintf( '<a class="prev-page" href="%s"><span class="screen-reader-text">%s</span><span aria-hidden="true">%s</span></a> ',
-                    esc_url( $base_url.add_query_arg( 'paged', $this->page - 1, $query_string ) ),
-                    __( 'Previous page', 'ct-admin-list' ),
-                    '&lsaquo;'
-                );
+                $disabled = '';
             }
+
+            // Previous link html
+            $output .= sprintf( '<a class="prev-page" %s href="%s"><span class="screen-reader-text">%s</span><span aria-hidden="true">%s</span></a> ',
+                $disabled,
+                esc_url( $base_url.add_query_arg( 'paged', $this->page - 1, $query_string ) ),
+                __( 'Previous page', 'ct-admin-list' ),
+                '&lsaquo;'
+            );
 
             $output .= '<span class="paging-input">';
             $output .= '<label for="current-page-selector" class="screen-reader-text">' . __( 'Current Page', 'ct-admin-list' ) . '</label>';
@@ -325,27 +334,35 @@ if ( ! class_exists( 'UsersAdminList' ) ) {
                 '<span class="tablenav-paging-text">',
                 $html_total_pages ) . '</span></span> ';
 
-            // Add next page link or label
+            // Disable/enable next page link
             if ( $this->page + 1 > $this->total_pages ) {
-                $output .= '<span class="tablenav-pages-navspan" aria-hidden="true">&rsaquo;</span> ';
+                $disabled = 'disabled="disabled"';
             } else {
-                $output .= sprintf( '<a class="prev-page" href="%s"><span class="screen-reader-text">%s</span><span aria-hidden="true">%s</span></a> ',
-                    esc_url( $base_url.add_query_arg( 'paged', $this->page + 1, $query_string ) ),
-                    __( 'Next page', 'ct-admin-list' ),
-                    '&rsaquo;'
-                );
+                $disabled = '';
             }
 
-            // Add last page link or label
+            // Next link html
+            $output .= sprintf( '<a class="next-page" %s href="%s"><span class="screen-reader-text">%s</span><span aria-hidden="true">%s</span></a> ',
+                $disabled,
+                esc_url( $base_url.add_query_arg( 'paged', $this->page + 1, $query_string ) ),
+                __( 'Next page', 'ct-admin-list' ),
+                '&rsaquo;'
+            );
+
+            // Disable/enable next page link
             if ( $this->page + 2 > $this->total_pages ) {
-                $output .= '<span class="tablenav-pages-navspan" aria-hidden="true">&raquo;</span> ';
+                $disabled = 'disabled="disabled"';
             } else {
-                $output .= sprintf( '<a class="prev-page" href="%s"><span class="screen-reader-text">%s</span><span aria-hidden="true">%s</span></a> ',
-                    esc_url( $base_url.add_query_arg( 'paged', $this->total_pages, $query_string ) ),
-                    __( 'Last page', 'ct-admin-list' ),
-                    '&raquo;'
-                );
+                $disabled = '';
             }
+
+            // Last link html
+            $output .= sprintf( '<a class="last-page" %s href="%s"><span class="screen-reader-text">%s</span><span aria-hidden="true">%s</span></a> ',
+                $disabled,
+                esc_url( $base_url.add_query_arg( 'paged', $this->total_pages, $query_string ) ),
+                __( 'Last page', 'ct-admin-list' ),
+                '&raquo;'
+            );
 
             $output .= '</div>';
 
